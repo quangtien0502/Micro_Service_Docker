@@ -1,0 +1,69 @@
+version: '3'
+name: spring-microservices
+services:
+  docker_mysql:
+    image: 'mysql:latest'
+    container_name: docker_mysql
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=1234'
+      - 'MYSQL_DATABASE=db_example'
+    ports:
+      - '2306:3306' 
+    volumes:
+      - "/home/docker/volumes/myapp/mysql/:/var/lib/mysql/"
+  spring-cloud:
+    container_name: spring-cloud
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - SPRING_DATASOURCE_AUTH_URL=jdbc:mysql://docker_mysql:3306/auth?allowPublicKeyRetrieval=true?createDatabaseIfNotExist=true
+    build:
+      context: ./config-server
+    ports:
+      - "7888:8888"
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep -q 8888" ]
+  eureka-server:
+    container_name: eureka-server
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - ERUKA_URL=eureka-serv
+    build:
+      context: ./service-register
+    ports:
+      - "7989:8989"
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep -q 8989" ]
+  auth-service:
+    container_name: auth-service
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - SPRING_DATASOURCE_AUTH_URL=jdbc:mysql://localhost:3306/auth?createDatabaseIfNotExist=true
+      - SPRING_ERUKA_URL=http://eureka-server:8989/eureka/
+      - SPRING_CLOUD_URL=spring-cloud
+      - SPRING_DATASOURCE_AUTH_URL=jdbc:mysql://docker_mysql:3306/auth?createDatabaseIfNotExist=TRUE
+    build:
+      context: ./auth-service
+    ports:
+      - "7011:8011"
+    depends_on:
+      spring-cloud:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      docker_mysql:
+        condition: service_started
+
+        
+        
+networks:
+  harrison-network:
+    driver: bridge
