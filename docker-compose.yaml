@@ -61,8 +61,50 @@ services:
         condition: service_healthy
       docker_mysql:
         condition: service_started
-
-        
+  product-service:
+    container_name: product-service
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - SPRING_ERUKA_URL=http://eureka-server:8989/eureka/
+      - SPRING_CLOUD_URL=spring-cloud
+      - SPRING_DATASOURCE_PRODUCT_URL=jdbc:mysql://docker_mysql:3306/product?createDatabaseIfNotExist=TRUE
+    build:
+      context: ./Product_Service
+    ports:
+      - "8012:8012"
+    expose:
+      - 8012
+    depends_on:
+      spring-cloud:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      docker_mysql:
+        condition: service_started
+  order-service:
+    container_name: order-service
+    restart: always
+    networks:
+      - harrison-network
+    environment:
+      - SPRING_ERUKA_URL=http://eureka-server:8989/eureka/
+      - SPRING_CLOUD_URL=spring-cloud
+      - SPRING_DATASOURCE_ORDER_URL=jdbc:mysql://docker_mysql:3306/order?createDatabaseIfNotExist=TRUE
+    build:
+      context: ./Order_Service
+    ports:
+      - "8013:8013"
+    expose:
+      - 8013
+    depends_on:
+      spring-cloud:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      docker_mysql:
+        condition: service_started      
         
 networks:
   harrison-network:

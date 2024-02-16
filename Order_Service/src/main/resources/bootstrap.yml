@@ -1,0 +1,6 @@
+spring:
+  cloud:
+    config:
+      name: auth-service
+      uri: http://${SPRING_CLOUD_URL:localhost}:8888/
+      enabled: true
