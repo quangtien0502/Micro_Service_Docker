@@ -11,7 +11,7 @@ services:
       - 'MYSQL_ROOT_PASSWORD=1234'
       - 'MYSQL_DATABASE=db_example'
     ports:
-      - '2306:3306' 
+      - '1306:3306' 
     volumes:
       - "/home/docker/volumes/myapp/mysql/:/var/lib/mysql/"
   spring-cloud:
@@ -54,6 +54,8 @@ services:
       context: ./auth-service
     ports:
       - "7011:8011"
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep -q 8989" ]
     depends_on:
       spring-cloud:
         condition: service_healthy
@@ -104,7 +106,31 @@ services:
       eureka-server:
         condition: service_healthy
       docker_mysql:
-        condition: service_started      
+        condition: service_started   
+  spring-api-gateway:
+    container_name: spring-api-gateway
+    networks:
+      - harrison-network
+    build:
+      context: ./demo_gateway
+    ports:
+      - "8014:8014"
+    expose:
+      - 8014
+    environment:
+      - authServiceUrl=auth-service
+      - authServicePort=8011
+      - productServiceUrl=product-service
+      - productServicePort=8012
+      - orderServiceUrl=order-service
+      - orderServicePort=8013
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep -q 8014" ]
         
 networks:
   harrison-network:
