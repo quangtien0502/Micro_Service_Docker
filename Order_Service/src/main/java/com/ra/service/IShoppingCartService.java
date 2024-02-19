@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface IShoppingCartService {
-    List<ShoppingCart> getAll() throws CustomException;
+    List<ShoppingCart> getAll(Long userId) throws CustomException;
     ShoppingCart save(ShoppingCart shoppingCart) throws CustomException;
     ShoppingCart findById(Integer id) throws CustomException;
     Orders checkout(Long userId) throws CustomException;

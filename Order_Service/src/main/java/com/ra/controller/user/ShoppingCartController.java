@@ -25,8 +25,8 @@ public class ShoppingCartController {
 
 
     @GetMapping("")
-    public ResponseEntity<?> getAllEnaBle() throws CustomException {
-        return new ResponseEntity<>(new CommonResponse<>(HttpStatus.OK,shoppingCartService.getAll()), HttpStatus.OK);
+    public ResponseEntity<?> getAllEnaBle(Long userId) throws CustomException {
+        return new ResponseEntity<>(new CommonResponse<>(HttpStatus.OK,shoppingCartService.getAll(userId)), HttpStatus.OK);
     }
 
     @PostMapping("")

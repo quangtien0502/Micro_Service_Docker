@@ -30,8 +30,8 @@ public class ShoppingCartService implements IShoppingCartService {
     private OrderDetailRepository orderDetailRepository;
 
     @Override
-    public List<ShoppingCart> getAll() throws CustomException {
-        return shoppingCartRepository.findAll();
+    public List<ShoppingCart> getAll(Long userId) throws CustomException {
+        return shoppingCartRepository.findAllByUserId(userId);
     }
 
     @Override
